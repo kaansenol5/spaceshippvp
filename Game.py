@@ -12,8 +12,8 @@ players=[]
 font1=pygame.font.SysFont('arial',16,True)
 
 window=pygame.display.set_mode((800,500))
-
 clock=pygame.time.Clock()
+
 pygame.event.pump()
 
 
@@ -29,7 +29,7 @@ class Player(object):
         self.sprite = pygame.image.load(f"assets/{sprite}")
         self.down=down
         self.up=up
-        self.score=100
+        self.score=0
         self.shootkey=shootkey
         self.bulletcolor=bulletcolor
         self.shootratelimit=0
@@ -43,8 +43,10 @@ class Player(object):
         if self.shootratelimit > 0:
             self.shootratelimit -= 1
             print(self.shootratelimit)
-        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
-
+#        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+        if self.score >= 100:
+            winscreen(self)
+            self.score=0
 
     def movement(self):
         # Goingup
@@ -56,7 +58,7 @@ class Player(object):
             self.y += self.vel
         if keys[self.shootkey] and self.shootratelimit == 0:
             global shot
-            shot=bullet((self.bulletcolor),10,self.x,self.y, self)
+            shot=bullet((self.bulletcolor),10,self.x,self.y+30, self)
             self.shootratelimit = 10
 
 
@@ -96,7 +98,7 @@ class bullet(object):
                 1]:
                 if self.x  > player.hitbox[0] and self.x  < player.hitbox[0] + player.hitbox[2]:
                     if self.shooter != player:
-                        player.score -= 1
+                        self.shooter.score += 1
                         bullets.pop(bullets.index(self))
 
 
@@ -106,20 +108,35 @@ def displaydraw():
         player.draw(window)
         scorecounter=font1.render(f"{player.name}'s score: {player.score}", 1 , player.bulletcolor)
         window.blit(scorecounter, (player.x,50))
-    if len(bullets) > 5:
-        bullets.pop(0)
     for shoot in bullets:
         shoot.draw(window)
     pygame.display.update()
 
 
+def winscreen(winner):
+    pygame.event.get()
+    pygame.display.update()
+    window.fill((0,0,0))
+    bullets=[]
+    for player in players:
+        player.score=0
+    message=font1.render(f"{winner.name} has won with {winner.score} points! Press SPACE to play again",1,(255,255,255))
+    window.blit(message,(200,250))
+    while True:
+        pygame.event.get()
+        keys=pygame.key.get_pressed()
+        pygame.display.update()
+        if keys[pygame.K_SPACE]:
+            break
 
 
 
 
 
-player1=Player('Player1',100,200,96,96,6,pygame.K_w,pygame.K_s,pygame.K_e,(255,0,0),'redplane.png')
-player2=Player('Player2',600,200,96,96,6,pygame.K_UP,pygame.K_DOWN,pygame.K_RSHIFT,(0,0,255), 'blueplane.png')
+
+
+Player('Player1',100,200,96,96,6,pygame.K_w,pygame.K_s,pygame.K_e,(255,0,0),'redplane.png')
+Player('Player2',600,200,96,96,6,pygame.K_UP,pygame.K_DOWN,pygame.K_RSHIFT,(0,0,255), 'blueplane.png')
 
 
 if __name__=='__main__':
@@ -131,4 +148,3 @@ if __name__=='__main__':
 
         clock.tick(60)
         displaydraw()
-
