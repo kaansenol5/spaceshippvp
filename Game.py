@@ -118,7 +118,7 @@ class Player(object):
             self.y -= self.vel -3
         elif enemy.y > self.y:
             self.y += self.vel -3
-        elif self.y == enemy.y and self.shootratelimit ==:
+        elif self.y == enemy.y and self.shootratelimit == 0:
             shot=bullet((self.bulletcolor),10,self.x,self.y+30, self,1)
             self.shootratelimit = 10
 
